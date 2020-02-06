@@ -265,7 +265,8 @@ static void *AVSPPlayerLayerReadyForDisplay = &AVSPPlayerLayerReadyForDisplay;
 
 - (void)setCurrentTime:(double)time
 {
-	[self.player seekToTime:CMTimeMakeWithSeconds(time, 1) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+	CMTimeScale timeScale = self.player.currentItem.duration.timescale;
+	[self.player seekToTime:CMTimeMakeWithSeconds(time, timeScale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
 }
 
 + (NSSet *)keyPathsForValuesAffectingVolume
