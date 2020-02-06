@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D81E7F323EC770800DCD9C7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D81E7F223EC770800DCD9C7 /* AppDelegate.swift */; };
+		3D81E7F523EC7A5900DCD9C7 /* AVSPDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D81E7F423EC7A5900DCD9C7 /* AVSPDocument.swift */; };
 		E9C000D31386529500219B6D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C000D21386529500219B6D /* Cocoa.framework */; };
 		E9C000DD1386529500219B6D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E9C000DB1386529500219B6D /* InfoPlist.strings */; };
-		E9C000DF1386529500219B6D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E9C000DE1386529500219B6D /* main.m */; };
-		E9C000E61386529500219B6D /* AVSPDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = E9C000E51386529500219B6D /* AVSPDocument.m */; };
 		E9C000E91386529500219B6D /* AVSPDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9C000E71386529500219B6D /* AVSPDocument.xib */; };
 		E9C000EC1386529500219B6D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9C000EA1386529500219B6D /* MainMenu.xib */; };
 		E9C000FC138652DD00219B6D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C000FB138652DD00219B6D /* AVFoundation.framework */; };
@@ -18,14 +18,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3D81E7F223EC770800DCD9C7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3D81E7F423EC7A5900DCD9C7 /* AVSPDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVSPDocument.swift; sourceTree = "<group>"; };
 		E9C000CE1386529500219B6D /* AVSimplePlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVSimplePlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9C000D21386529500219B6D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E9C000DA1386529500219B6D /* AVSimplePlayer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "AVSimplePlayer-Info.plist"; path = "../AVSimplePlayer/AVSimplePlayer-Info.plist"; sourceTree = "<group>"; };
 		E9C000DC1386529500219B6D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		E9C000DE1386529500219B6D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../AVSimplePlayer/main.m; sourceTree = "<group>"; };
 		E9C000E01386529500219B6D /* AVSimplePlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AVSimplePlayer-Prefix.pch"; path = "../AVSimplePlayer/AVSimplePlayer-Prefix.pch"; sourceTree = "<group>"; };
-		E9C000E41386529500219B6D /* AVSPDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AVSPDocument.h; path = ../AVSimplePlayer/AVSPDocument.h; sourceTree = "<group>"; };
-		E9C000E51386529500219B6D /* AVSPDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AVSPDocument.m; path = ../AVSimplePlayer/AVSPDocument.m; sourceTree = "<group>"; };
 		E9C000E81386529500219B6D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AVSPDocument.xib; sourceTree = "<group>"; };
 		E9C000EB1386529500219B6D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E9C000FB138652DD00219B6D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -76,8 +75,8 @@
 		E9C000D81386529500219B6D /* AVSimplePlayer */ = {
 			isa = PBXGroup;
 			children = (
-				E9C000E41386529500219B6D /* AVSPDocument.h */,
-				E9C000E51386529500219B6D /* AVSPDocument.m */,
+				3D81E7F223EC770800DCD9C7 /* AppDelegate.swift */,
+				3D81E7F423EC7A5900DCD9C7 /* AVSPDocument.swift */,
 				E9C000E71386529500219B6D /* AVSPDocument.xib */,
 				E9C000EA1386529500219B6D /* MainMenu.xib */,
 				E9C000D91386529500219B6D /* Supporting Files */,
@@ -90,7 +89,6 @@
 			children = (
 				E9C000DA1386529500219B6D /* AVSimplePlayer-Info.plist */,
 				E9C000DB1386529500219B6D /* InfoPlist.strings */,
-				E9C000DE1386529500219B6D /* main.m */,
 				E9C000E01386529500219B6D /* AVSimplePlayer-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -123,12 +121,18 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0600;
+				TargetAttributes = {
+					E9C000CD1386529500219B6D = {
+						LastSwiftMigration = 1140;
+					};
+				};
 			};
 			buildConfigurationList = E9C000C81386529500219B6D /* Build configuration list for PBXProject "AVSimplePlayer" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = E9C000C31386529500219B6D;
@@ -159,8 +163,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9C000DF1386529500219B6D /* main.m in Sources */,
-				E9C000E61386529500219B6D /* AVSPDocument.m in Sources */,
+				3D81E7F523EC7A5900DCD9C7 /* AVSPDocument.swift in Sources */,
+				3D81E7F323EC770800DCD9C7 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,14 +280,18 @@
 		E9C000F01386529500219B6D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AVSimplePlayer/AVSimplePlayer-Prefix.pch";
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "AVSimplePlayer/AVSimplePlayer-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -291,14 +299,17 @@
 		E9C000F11386529500219B6D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AVSimplePlayer/AVSimplePlayer-Prefix.pch";
 				GCC_WARN_UNUSED_LABEL = YES;
 				INFOPLIST_FILE = "AVSimplePlayer/AVSimplePlayer-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

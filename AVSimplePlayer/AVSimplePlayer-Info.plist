@@ -26,7 +26,7 @@
 				<string>public.movie</string>
 			</array>
 			<key>NSDocumentClass</key>
-			<string>AVSPDocument</string>
+			<string>$(PRODUCT_MODULE_NAME).AVSPDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -48,7 +48,7 @@
 			<key>LSTypeIsPackage</key>
 			<false/>
 			<key>NSDocumentClass</key>
-			<string>AVSPDocument</string>
+			<string>$(PRODUCT_MODULE_NAME).AVSPDocument</string>
 			<key>NSPersistentStoreTypeKey</key>
 			<string>Binary</string>
 		</dict>
