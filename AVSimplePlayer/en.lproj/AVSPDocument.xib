@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16085" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16085"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="AVSPDocument">
+        <customObject id="-2" userLabel="File's Owner" customClass="AVSPDocument" customModule="AVSimplePlayer" customModuleProvider="target">
             <connections>
                 <outlet property="fastForwardButton" destination="100025" id="100078"/>
                 <outlet property="loadingSpinner" destination="100139" id="100140"/>
@@ -41,7 +41,7 @@ IA
 </string>
                         </buttonCell>
                         <connections>
-                            <action selector="playPauseToggle:" target="-2" id="100031"/>
+                            <action selector="playPauseToggleWithSender:" target="-2" id="pVl-gQ-hOv"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="100025">
@@ -54,7 +54,7 @@ IA
                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                         </buttonCell>
                         <connections>
-                            <action selector="fastForward:" target="-2" id="100032"/>
+                            <action selector="fastForwardWithSender:" target="-2" id="0qz-UT-0ms"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="100027">
@@ -67,7 +67,7 @@ IA
                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                         </buttonCell>
                         <connections>
-                            <action selector="rewind:" target="-2" id="100033"/>
+                            <action selector="rewindWithSender:" target="-2" id="Mte-Yy-teR"/>
                         </connections>
                     </button>
                     <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="100029" userLabel="Custom View">
@@ -137,7 +137,7 @@ IA
                         <sliderCell key="cell" controlSize="small" continuous="YES" enabled="NO" alignment="left" maxValue="100" tickMarkPosition="above" sliderType="linear" id="100082"/>
                         <connections>
                             <binding destination="-2" name="maxValue" keyPath="duration" id="100096"/>
-                            <binding destination="-2" name="value" keyPath="currentTime" previousBinding="100096" id="100097"/>
+                            <binding destination="-2" name="value" keyPath="currentTime" previousBinding="100096" id="xNR-YY-mLJ"/>
                         </connections>
                     </slider>
                 </subviews>
@@ -148,6 +148,6 @@ IA
             </connections>
             <point key="canvasLocation" x="141" y="147"/>
         </window>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
     </objects>
 </document>

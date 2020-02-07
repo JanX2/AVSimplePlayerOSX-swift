@@ -36,12 +36,12 @@ import AVFoundation
 
 class AVSPDocument: NSDocument {
 
-	private var rateObserver: NSKeyValueObservation? = nil
 	private var statusObserver: NSKeyValueObservation? = nil
+	private var rateObserver: NSKeyValueObservation? = nil
 	private var readyForDisplayObserver: NSKeyValueObservation? = nil
 	
-	@objc private var player: AVPlayer? = nil
-    private var playerLayer: AVPlayerLayer? = nil
+	@objc dynamic private var player: AVPlayer? = nil
+    @objc private var playerLayer: AVPlayerLayer? = nil
 	
 	
 	@objc dynamic var currentTime: Double {
@@ -65,12 +65,11 @@ class AVSPDocument: NSDocument {
 	
     @objc dynamic var duration: Double {
 		get {
-			guard let player = player else {
+			guard let player = player,
+				let playerItem = player.currentItem else {
 				return 0.0
 			}
 			
-			let playerItem: AVPlayerItem! = player.currentItem
-
 			if playerItem.status == .readyToPlay {
 				return CMTimeGetSeconds(playerItem.asset.duration)
 			}
@@ -81,11 +80,11 @@ class AVSPDocument: NSDocument {
 	}
 	
 	@objc class func keyPathsForValuesAffectingDuration() -> Set<String> {
-		return Set(["player.currentItem", "player.currentItem.status"])
+		return Set([#keyPath(AVSPDocument.player.currentItem), #keyPath(AVSPDocument.player.currentItem.status)])
     }
 	
 	
-	@objc dynamic var volume: Float{
+	@objc dynamic var volume: Float {
 		get {
 			guard let player = self.player else {
 				return 0.0
@@ -103,7 +102,7 @@ class AVSPDocument: NSDocument {
 	}
 	
 	@objc class func keyPathsForValuesAffectingVolume() -> Set<String> {
-		return Set(["player.volume"])
+		return Set([#keyPath(AVSPDocument.player.volume)])
 	}
 	
     @IBOutlet private var loadingSpinner: NSProgressIndicator? = nil
@@ -137,11 +136,10 @@ class AVSPDocument: NSDocument {
 		
 		self.rateObserver = player.observe(\.rate, options: [.new]) {
 			(playerItem, change) in
-			guard let newValue = change.newValue else {
+			guard let rate = change.newValue else {
 				return
 			}
 			
-			let rate: Float = newValue
 			if rate != 1.0 {
 				self.playPauseButton?.title = "Play"
 			}
@@ -152,20 +150,22 @@ class AVSPDocument: NSDocument {
 		
 		self.statusObserver = player.observe(\.currentItem?.status, options: [.new]) {
 			(player, change) in
-			guard let newValue = change.newValue else {
-				return
-			}
+			// The following never produces a non-nil value:
+			//guard let status = change.newValue else {
+			//	return
+			//}
 			
-			let status = newValue
 			var enable = false
-			switch (status) {
+			
+			switch (player.status) {
 			case .unknown:
 				break
 			case .readyToPlay:
 				enable = true
 				break
 			case .failed:
-				self.stopLoadingAnimationAndHandleError(self.player?.currentItem?.error)
+				self.stopLoadingAnimation()
+				self.handleError(self.player?.currentItem?.error)
 				break
 			default:
 				break
@@ -176,24 +176,24 @@ class AVSPDocument: NSDocument {
 			self.rewindButton?.isEnabled = enable
 		}
 		
-    	// Create an asset with our URL, asychronously load its tracks and whether it's playable or protected.
-    	// When that loading is complete, configure a player to play the asset.
 		guard let fileURL = self.fileURL else {
 			return
 		}
 		
+    	// Create an asset with our URL, asychronously load its tracks and whether it's playable or protected.
+    	// When that loading is complete, configure a player to play the asset.
 		let asset = AVAsset(url: fileURL)
     	let assetKeysToLoadAndTest = ["playable", "hasProtectedContent", "tracks"]
 		asset.loadValuesAsynchronously(forKeys: assetKeysToLoadAndTest) {
     		// The asset invokes its completion handler on an arbitrary queue when loading is complete.
     		// Because we want to access our AVPlayer in our ensuing set-up, we must dispatch our handler to the main queue.
 			DispatchQueue.main.async {
-				self.setUpPlaybackOfAsset(asset: asset, withKeys: assetKeysToLoadAndTest)
+				self.setUpPlayback(ofAsset: asset, withKeys: assetKeysToLoadAndTest)
     		}
     	}
     }
 
-    func setUpPlaybackOfAsset(asset: AVAsset, withKeys keys: [String]) {
+    func setUpPlayback(ofAsset asset: AVAsset, withKeys keys: [String]) {
     	// This method is called when the AVAsset for our URL has completing the loading of the values of the specified array of keys.
     	// We set up playback of the asset here.
 
@@ -202,14 +202,15 @@ class AVSPDocument: NSDocument {
     		var error: NSError? = nil
 
 			if asset.statusOfValue(forKey: key, error: &error) == .failed {
-    			self.stopLoadingAnimationAndHandleError(error)
+    			self.stopLoadingAnimation()
+				self.handleError(error)
     			return
     		}
     	 }
 
     	if !asset.isPlayable || asset.hasProtectedContent {
     		// We can't play this asset. Show the "Unplayable Asset" label.
-    		self.stopLoadingAnimationAndHandleError(nil)
+    		self.stopLoadingAnimation()
 			self.unplayableLabel?.isHidden = false
     		return
     	}
@@ -221,7 +222,7 @@ class AVSPDocument: NSDocument {
 				return
 			}
 			
-    		// Create an AVPlayerLayer and add it to the player view if there is video, but hide it until it's ready for display
+    		// Create an AVPlayerLayer and add it to the player view if there is video, but hide it until it's ready for display.
 			let newPlayerLayer = AVPlayerLayer(player: self.player)
 			newPlayerLayer.frame = layer.bounds
 			newPlayerLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
@@ -229,51 +230,60 @@ class AVSPDocument: NSDocument {
     		layer.addSublayer(newPlayerLayer)
 			
     		self.playerLayer = newPlayerLayer
-			// CRASH
-			self.readyForDisplayObserver = self.observe(\.playerLayer?.isReadyForDisplay, options: [.new]) {
+			self.readyForDisplayObserver = playerLayer?.observe(\.isReadyForDisplay, options: [.initial, .new]) {
 				_, change in
-				if let newValue = change.newValue,
-					newValue == true {
+				if change.newValue == true {
 					// The AVPlayerLayer is ready for display. Hide the loading spinner and show it.
-					self.stopLoadingAnimationAndHandleError(nil)
+					self.stopLoadingAnimation()
 					self.playerLayer?.isHidden = false
+					//self.volume = self.player?.volume ?? 0.0
 				}
 			}
     	}
     	else {
     		// This asset has no video tracks. Show the "No Video" label.
-    		self.stopLoadingAnimationAndHandleError(nil)
+    		self.stopLoadingAnimation()
 			self.noVideoLabel?.isHidden = false
     	}
 
     	// Create a new AVPlayerItem and make it our player's current item.
 		let playerItem = AVPlayerItem(asset: asset)
 
-    	// If needed, configure player item here (example: adding outputs, setting text style rules, selecting media options) before associating it with a player
+    	// If needed, configure player item here (example: adding outputs, setting text style rules, selecting media options) before associating it with a player.
+		
 		self.player?.replaceCurrentItem(with: playerItem)
 
-    	// Use a weak self variable to avoid a retain cycle in the block
-		self.timeObserverToken = self.player?.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: DispatchQueue.main) {
+    	// Use a weak self variable to avoid a retain cycle in the block.
+		self.timeObserverToken = player?.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: DispatchQueue.main) {
 			[weak self] time in
-			self?.timeSlider?.doubleValue = CMTimeGetSeconds(time)
+			let seconds = CMTimeGetSeconds(time)
+			self?.timeSlider?.doubleValue = seconds
     	}
 
     }
 
-    func stopLoadingAnimationAndHandleError(_ error: Error?) { // handleError:
-		if let loadingSpinner = self.loadingSpinner {
-			loadingSpinner.stopAnimation(self)
-			loadingSpinner.isHidden = true
+    func stopLoadingAnimation() {
+		DispatchQueue.main.async {
+			if let loadingSpinner = self.loadingSpinner {
+				loadingSpinner.stopAnimation(self)
+				loadingSpinner.isHidden = true
+			}
 		}
-		
-    	if let error = error,
-			let windowForSheet = self.windowForSheet {
+    }
+	
+    func handleError(_ error: Error?) {
+		DispatchQueue.main.async {
+			guard let error = error,
+				let windowForSheet = self.windowForSheet else {
+				return
+			}
+			
 			self.presentError(error,
 							  modalFor: windowForSheet,
 							  delegate: nil,
 							  didPresent: nil,
 							  contextInfo: nil)
-    	}
+		}
     }
 
 	override func close() {
@@ -284,6 +294,10 @@ class AVSPDocument: NSDocument {
 				player.removeTimeObserver(timeObserverToken)
 			}
 		}
+		
+		self.rateObserver = nil
+		self.statusObserver = nil
+		self.readyForDisplayObserver = nil
 		
     	self.timeObserverToken = nil
 		
@@ -340,5 +354,19 @@ class AVSPDocument: NSDocument {
         return
     }
 
+	#if false
+	override class func keyPathsForValuesAffectingValue(forKey key: String) -> Set<String> {
+		Swift.print("Debug: called for:", key)
 
+		switch key {
+		case "volume":
+			return Set(["player.volume"])
+		case "duration":
+			return Set(["player.currentItem", "player.currentItem.status"])
+		default :
+			return super.keyPathsForValuesAffectingValue(forKey: key)
+		}
+	}
+	#endif
+	
 }
