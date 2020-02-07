@@ -43,6 +43,11 @@ class AVSPDocument: NSDocument {
 	@objc dynamic private var player: AVPlayer? = nil
     @objc private var playerLayer: AVPlayerLayer? = nil
 	
+	// Based on https://developer.apple.com/library/archive/qa/qa1820/_index.html
+	var isSeekInProgress = false
+	var chaseTime = CMTime.zero
+	@objc dynamic var playerCurrentItemStatus: AVPlayerItem.Status = .unknown
+	
 	
 	@objc dynamic var currentTime: Double {
 		get {
@@ -58,7 +63,8 @@ class AVSPDocument: NSDocument {
 			}
 			
 			let timeScale: CMTimeScale = player.currentItem?.duration.timescale ?? 1000
-			player.seek(to: CMTimeMakeWithSeconds(newValue, preferredTimescale: timeScale), toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
+			let time = CMTimeMakeWithSeconds(newValue, preferredTimescale: timeScale)
+			self.stopPlayingAndSeekSmoothlyToTime(newChaseTime: time)
 		}
 	}
 	
@@ -70,7 +76,7 @@ class AVSPDocument: NSDocument {
 				return 0.0
 			}
 			
-			if playerItem.status == .readyToPlay {
+			if playerCurrentItemStatus == .readyToPlay {
 				return CMTimeGetSeconds(playerItem.asset.duration)
 			}
 			else {
@@ -80,7 +86,7 @@ class AVSPDocument: NSDocument {
 	}
 	
 	@objc class func keyPathsForValuesAffectingDuration() -> Set<String> {
-		return Set([#keyPath(AVSPDocument.player.currentItem), #keyPath(AVSPDocument.player.currentItem.status)])
+		return Set([#keyPath(AVSPDocument.player.currentItem), #keyPath(AVSPDocument.playerCurrentItemStatus)])
     }
 	
 	
@@ -157,7 +163,13 @@ class AVSPDocument: NSDocument {
 			
 			var enable = false
 			
-			switch (player.status) {
+			guard let playerCurrentItemStatus = player.currentItem?.status else {
+				return
+			}
+			
+			self.playerCurrentItemStatus = playerCurrentItemStatus
+			
+			switch (playerCurrentItemStatus) {
 			case .unknown:
 				break
 			case .readyToPlay:
@@ -362,11 +374,58 @@ class AVSPDocument: NSDocument {
 		case "volume":
 			return Set(["player.volume"])
 		case "duration":
-			return Set(["player.currentItem", "player.currentItem.status"])
+			return Set(["player.currentItem", "playerCurrentItemStatus"])
 		default :
 			return super.keyPathsForValuesAffectingValue(forKey: key)
 		}
 	}
 	#endif
+	
+	
+	// Based on https://developer.apple.com/library/archive/qa/qa1820/_index.html
+	func stopPlayingAndSeekSmoothlyToTime(newChaseTime: CMTime) {
+		guard let player = self.player else {
+			return
+		}
+		
+		player.pause()
+		
+		if newChaseTime != chaseTime {
+			chaseTime = newChaseTime;
+			
+			if !isSeekInProgress {
+				trySeekToChaseTime()
+			}
+		}
+	}
+	
+	func trySeekToChaseTime() {
+		if playerCurrentItemStatus == .unknown {
+			// Wait until item becomes ready (KVO player.currentItem.status).
+		}
+		else if playerCurrentItemStatus == .readyToPlay {
+			actuallySeekToTime()
+		}
+	}
+	
+	func actuallySeekToTime() {
+		guard let player = self.player else {
+			return
+		}
+		
+		isSeekInProgress = true
+		let seekTimeInProgress = chaseTime
+		
+		player.seek(to: seekTimeInProgress,
+					toleranceBefore: CMTime.zero,
+					toleranceAfter: CMTime.zero) { _ in
+				if CMTimeCompare(seekTimeInProgress, self.chaseTime) == 0 {
+					self.isSeekInProgress = false
+				}
+				else {
+					self.trySeekToChaseTime()
+				}
+		}
+	}
 	
 }
