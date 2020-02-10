@@ -111,14 +111,17 @@ class AVSPDocument: NSDocument {
 		return Set([#keyPath(AVSPDocument.player.volume)])
 	}
 	
-    @IBOutlet private var loadingSpinner: NSProgressIndicator? = nil
-    @IBOutlet private var unplayableLabel: NSTextField? = nil
-    @IBOutlet private var noVideoLabel: NSTextField? = nil
-    @IBOutlet private var playerView: NSView? = nil
-    @IBOutlet private var playPauseButton: NSButton? = nil
-    @IBOutlet private var fastForwardButton: NSButton? = nil
-    @IBOutlet private var rewindButton: NSButton? = nil
-    @IBOutlet private var timeSlider: NSSlider? = nil
+    @IBOutlet private var loadingSpinner: NSProgressIndicator!
+    @IBOutlet private var unplayableLabel: NSTextField!
+    @IBOutlet private var noVideoLabel: NSTextField!
+	
+    @IBOutlet private var playerView: NSView!
+	
+    @IBOutlet private var playPauseButton: NSButton!
+    @IBOutlet private var fastForwardButton: NSButton!
+    @IBOutlet private var rewindButton: NSButton!
+	
+    @IBOutlet private var timeSlider: NSSlider!
 	
     private var timeObserverToken: Any? = nil
 	
@@ -131,8 +134,8 @@ class AVSPDocument: NSDocument {
         super.windowControllerDidLoadNib(windowController)
 		
 		windowController.window?.isMovableByWindowBackground = true
-		self.playerView?.layer?.backgroundColor = CGColor.black
-		self.loadingSpinner?.startAnimation(self)
+		self.playerView.layer?.backgroundColor = CGColor.black
+		self.loadingSpinner.startAnimation(self)
 
     	// Create the AVPlayer, add rate and status observers
     	self.player = AVPlayer()
@@ -147,10 +150,10 @@ class AVSPDocument: NSDocument {
 			}
 			
 			if rate != 1.0 {
-				self.playPauseButton?.title = "Play"
+				self.playPauseButton.title = "Play"
 			}
 			else {
-				self.playPauseButton?.title = "Pause"
+				self.playPauseButton.title = "Pause"
 			}
 		}
 		
@@ -183,9 +186,9 @@ class AVSPDocument: NSDocument {
 				break
 			}
 			
-			self.playPauseButton?.isEnabled = enable
-			self.fastForwardButton?.isEnabled = enable
-			self.rewindButton?.isEnabled = enable
+			self.playPauseButton.isEnabled = enable
+			self.fastForwardButton.isEnabled = enable
+			self.rewindButton.isEnabled = enable
 		}
 		
 		guard let fileURL = self.fileURL else {
@@ -223,14 +226,14 @@ class AVSPDocument: NSDocument {
     	if !asset.isPlayable || asset.hasProtectedContent {
     		// We can't play this asset. Show the "Unplayable Asset" label.
     		self.stopLoadingAnimation()
-			self.unplayableLabel?.isHidden = false
+			self.unplayableLabel.isHidden = false
     		return
     	}
 
     	// We can play this asset.
     	// Set up an AVPlayerLayer according to whether the asset contains video.
 		if asset.tracks(withMediaType: AVMediaType.video).count != 0 {
-			guard let layer = self.playerView?.layer else {
+			guard let layer = self.playerView.layer else {
 				return
 			}
 			
@@ -242,20 +245,19 @@ class AVSPDocument: NSDocument {
     		layer.addSublayer(newPlayerLayer)
 			
     		self.playerLayer = newPlayerLayer
-			self.readyForDisplayObserver = playerLayer?.observe(\.isReadyForDisplay, options: [.initial, .new]) {
+			self.readyForDisplayObserver = self.playerLayer?.observe(\.isReadyForDisplay, options: [.initial, .new]) {
 				_, change in
 				if change.newValue == true {
 					// The AVPlayerLayer is ready for display. Hide the loading spinner and show it.
 					self.stopLoadingAnimation()
 					self.playerLayer?.isHidden = false
-					//self.volume = self.player?.volume ?? 0.0
 				}
 			}
     	}
     	else {
     		// This asset has no video tracks. Show the "No Video" label.
     		self.stopLoadingAnimation()
-			self.noVideoLabel?.isHidden = false
+			self.noVideoLabel.isHidden = false
     	}
 
     	// Create a new AVPlayerItem and make it our player's current item.
@@ -269,20 +271,18 @@ class AVSPDocument: NSDocument {
 		self.timeObserverToken = player?.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: DispatchQueue.main) {
 			[weak self] time in
 			let seconds = CMTimeGetSeconds(time)
-			self?.timeSlider?.doubleValue = seconds
+			self?.timeSlider.doubleValue = seconds
     	}
 
     }
 
     func stopLoadingAnimation() {
-		DispatchQueue.main.async {
-			if let loadingSpinner = self.loadingSpinner {
-				loadingSpinner.stopAnimation(self)
-				loadingSpinner.isHidden = true
-			}
-		}
+        DispatchQueue.main.async {
+            self.loadingSpinner.stopAnimation(self)
+            self.loadingSpinner.isHidden = true
+        }
     }
-	
+
     func handleError(_ error: Error?) {
 		DispatchQueue.main.async {
 			guard let error = error,
